@@ -1,14 +1,14 @@
 import styled from 'styled-components';
 
 export const EmojiRow = ({emoji}) => {
-  const {character, name, code} = emoji;
+  const {character, unicodeName, codePoint} = emoji;
   return (
     <EmojiRowContainer>
       <EmojiAndName>
         <EmojiCharacter>{character}</EmojiCharacter>
-        {name}
+        {unicodeName}
       </EmojiAndName>
-      <div>{code}</div>
+      <div>{codePoint}</div>
     </EmojiRowContainer>
   )
 };

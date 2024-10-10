@@ -1,19 +1,25 @@
 import styled from 'styled-components';
-import {Input} from 'semantic-ui-react';
-import allEmojis from "./resources/emojis.json";
+import { Input, Loader } from 'semantic-ui-react';
 import { useState } from 'react';
 import { EmojiRow } from './EmojiRow';
+import { fetchingEmojis } from './emojiAPI';
+import debounce from 'debounce';
 export const App = () => {
 
 
-  const[filteredEmojis, setFilteredEmoji] = useState([]);
+  const[emojis, setEmojis] = useState([]);
+  const[isLoading,setLoading] = useState(false);
 
-/*  const filterEmojis =*/
-  const handleFilteredEmojis = (filterName) => {
-    const filtered =  allEmojis.filter((emoji) => {
-      return emoji.name.includes(filterName);
-    })
-    setFilteredEmoji(filtered);
+
+  const debounceGetEmojis = debounce((searchText) => {
+    getEmojis(searchText);
+  }, 500);
+
+  const getEmojis = async (searchText) => {
+    setLoading(true);
+    const filteredEmojis = await fetchingEmojis(searchText);
+    setEmojis(filteredEmojis);
+    setLoading(false);
   }
 
   return <AppContainer>
@@ -22,16 +28,17 @@ export const App = () => {
       fluid
     icon={"search"}
     placeholder="Search"
-    onChange={(ab)=> {
-      handleFilteredEmojis(ab.target.value)
+    onChange={(e)=> {
+      debounceGetEmojis(e.target.value)
     }}
     />
     <EmojiContainer>{
-      filteredEmojis.map((emoji, index) => {
-      return (
+      (isLoading ? <Loader active inline={'centered'}/> : emojis?.map((emoji, index) => {
+        return (
           <EmojiRow emoji={ emoji} key={index}/>
-      )
-      })}
+        )
+      }))
+      }
     </EmojiContainer>
     </SearchContainer>
   </AppContainer>;
@@ -51,7 +58,7 @@ const EmojiContainer = styled.div`
     border-radius: 5px;
     display: flex;
     flex-direction: column;
-border: 1px solid lightgrey;
+    border: 1px solid lightgrey;
     div:last-child {
         border-bottom: 0;
     }
